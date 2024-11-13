@@ -6,7 +6,11 @@ module.exports = {
     "./src/styles/*.css"          // Includes CSS files in the styles folder within src
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'nexa': ['Nexa', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 }
