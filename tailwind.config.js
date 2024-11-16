@@ -36,6 +36,20 @@ export default {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       },
+      colors: {
+        navy: {
+          50: '#f5f7fa',
+          100: '#eaeef4',
+          200: '#d5dfe9',
+          300: '#b4c4d9',
+          400: '#8da3c7',
+          500: '#6c84b4',
+          600: '#526b9b',
+          700: '#425682',
+          800: '#1a2542',
+          900: '#0f172a',
+        },
+      },
     },
   },
   plugins: [],

@@ -5,7 +5,6 @@ import { Input } from './ui/input.jsx';
 import { Wallet, Send, ArrowRight, History, RefreshCw, Plus, CreditCard, Building2, Wallet2 } from 'lucide-react';
 import { Alert, AlertDescription } from './ui/alert.jsx';
 import { Navigation } from './Navigation';
-import GlobeCurrencyBackground from './GlobeCurrencyBackground';
 
 const WalletComponent = () => {
   const [balance, setBalance] = useState(1000);
@@ -114,210 +113,185 @@ const WalletComponent = () => {
   ];
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 relative">
-      <GlobeCurrencyBackground />
-      <div className="relative z-10">
-        <Navigation />
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="max-w-md mx-auto p-4">
-            <Card className="bg-gradient-to-br from-purple-500 to-blue-600 text-white">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Wallet className="w-6 h-6" />
-                  Digital Wallet
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center mb-6">
-                  <p className="text-sm opacity-80">Available Balance</p>
-                  <h2 className="text-4xl font-bold my-2">{formatCurrency(balance, fromCurrency)}</h2>
-                </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto">
+        <Card className="bg-white shadow-sm border border-gray-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <Wallet className="h-6 w-6 text-blue-500" />
+              Your Wallet
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center mb-6">
+              <p className="text-sm text-gray-600">Available Balance</p>
+              <h2 className="text-4xl font-bold my-2 text-gray-900">
+                {formatCurrency(balance, fromCurrency)}
+              </h2>
+            </div>
 
-                <div className="space-y-4">
-                  <Button 
-                    variant="secondary" 
-                    className="w-full bg-white/20 hover:bg-white/30"
-                    onClick={() => setShowAddMoney(!showAddMoney)}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Money
-                  </Button>
+            <div className="space-y-4">
+              <Button 
+                variant="secondary" 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => setShowAddMoney(!showAddMoney)}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Money
+              </Button>
 
-                  {showAddMoney && (
-                    <div className="space-y-4 mb-4 bg-white/10 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-4">Add Money to Wallet</h3>
-                      
-                      <div className="space-y-4">
-                        <Input
-                          type="number"
-                          placeholder="Enter amount"
-                          value={addAmount}
-                          onChange={(e) => setAddAmount(e.target.value)}
-                          className="bg-white/20 border-white/30 text-white placeholder:text-white/50"
-                        />
+              {showAddMoney && (
+                <div className="space-y-4 mb-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Money to Wallet</h3>
+                  <div className="space-y-4">
+                    <Input
+                      type="number"
+                      placeholder="Enter amount"
+                      value={addAmount}
+                      onChange={(e) => setAddAmount(e.target.value)}
+                      className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                    />
 
-                        <div className="space-y-2">
-                          <label className="text-sm opacity-80">Select Payment Method</label>
-                          <div className="grid grid-cols-1 gap-2">
-                            {paymentMethods.map((method) => (
-                              <button
-                                key={method.id}
-                                onClick={() => setPaymentMethod(method.id)}
-                                className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
-                                  paymentMethod === method.id 
-                                    ? 'bg-white/30 border-2 border-white' 
-                                    : 'bg-white/10 hover:bg-white/20'
-                                }`}
-                              >
-                                {method.icon}
-                                <span>{method.name}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button 
-                            className="flex-1 bg-white/20 hover:bg-white/30"
-                            onClick={() => setShowAddMoney(false)}
+                    <div className="space-y-2">
+                      <label className="text-sm text-gray-600">Select Payment Method</label>
+                      <div className="grid grid-cols-1 gap-2">
+                        {paymentMethods.map((method) => (
+                          <button
+                            key={method.id}
+                            onClick={() => setPaymentMethod(method.id)}
+                            className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                              paymentMethod === method.id 
+                                ? 'bg-blue-50 border-2 border-blue-500 text-blue-700' 
+                                : 'bg-white border border-gray-200 hover:bg-gray-50 text-gray-700'
+                            }`}
                           >
-                            Cancel
-                          </Button>
-                          <Button 
-                            className="flex-1 bg-white text-purple-600 hover:bg-white/90"
-                            onClick={handleAddMoney}
-                            disabled={!addAmount || !paymentMethod}
-                          >
-                            Proceed to Pay
-                          </Button>
-                        </div>
+                            <div className="text-blue-500">{method.icon}</div>
+                            <span>{method.name}</span>
+                          </button>
+                        ))}
                       </div>
                     </div>
-                  )}
 
-                  <Button 
-                    variant="secondary" 
-                    className="w-full bg-white/20 hover:bg-white/30"
-                    onClick={() => setShowSend(!showSend)}
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    Send Money at Great Rates
-                  </Button>
-
-                  {showSend && (
-                    <div className="space-y-4 mb-4">
-                      <Input
-                        placeholder="Recipient name or email"
-                        value={recipient}
-                        onChange={(e) => setRecipient(e.target.value)}
-                        className="bg-white/20 border-white/30 text-white placeholder:text-white/50"
-                      />
-                      
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1">
-                          <Input
-                            type="number"
-                            placeholder="Amount"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            className="bg-white/20 border-white/30 text-white placeholder:text-white/50"
-                          />
-                        </div>
-                        <select 
-                          value={fromCurrency}
-                          onChange={(e) => setFromCurrency(e.target.value)}
-                          className="bg-white/20 border-white/30 text-white p-2 rounded"
-                        >
-                          {currencies.map(currency => (
-                            <option key={currency} value={currency}>{currency}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <ArrowRight className="w-4 h-4" />
-                        <div className="flex-1">
-                          <Input
-                            readOnly
-                            value={amount ? (Number(amount) * exchangeRate).toFixed(2) : ''}
-                            className="bg-white/20 border-white/30 text-white"
-                          />
-                        </div>
-                        <select 
-                          value={toCurrency}
-                          onChange={(e) => setToCurrency(e.target.value)}
-                          className="bg-white/20 border-white/30 text-white p-2 rounded"
-                        >
-                          {currencies.map(currency => (
-                            <option key={currency} value={currency}>{currency}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="flex items-center justify-between text-sm opacity-80">
-                        <span>Exchange Rate:</span>
-                        <div className="flex items-center gap-1">
-                          <span>1 {fromCurrency} = {exchangeRate} {toCurrency}</span>
-                          <RefreshCw className="w-3 h-3 cursor-pointer" />
-                        </div>
-                      </div>
-
+                    <div className="flex gap-2">
                       <Button 
-                        className="w-full bg-white text-purple-600 hover:bg-white/90"
-                        onClick={handleSendMoney}
+                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700"
+                        onClick={() => setShowAddMoney(false)}
                       >
-                        Send Money
+                        Cancel
+                      </Button>
+                      <Button 
+                        className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+                        onClick={handleAddMoney}
+                        disabled={!addAmount || !paymentMethod}
+                      >
+                        Proceed to Pay
                       </Button>
                     </div>
-                  )}
+                  </div>
                 </div>
+              )}
 
-                {notification && (
-                  <Alert className="mt-4 bg-white/20 border-white/30">
-                    <AlertDescription className="text-white">
-                      {notification}
-                    </AlertDescription>
-                  </Alert>
-                )}
+              <Button 
+                variant="secondary" 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => setShowSend(!showSend)}
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Send Money at Great Rates
+              </Button>
 
-                <div className="mt-6 pt-6 border-t border-white/20">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2 opacity-80">
-                      <History className="w-4 h-4" />
-                      <span className="text-sm">Recent Transactions</span>
+              {showSend && (
+                <div className="space-y-4 mb-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <Input
+                    placeholder="Recipient name or email"
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                    className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                  />
+                  
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        placeholder="Amount"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="bg-white border-gray-300 text-gray-900"
+                      />
+                    </div>
+                    <select 
+                      value={fromCurrency}
+                      onChange={(e) => setFromCurrency(e.target.value)}
+                      className="bg-white border-gray-300 text-gray-900 p-2 rounded"
+                    >
+                      {currencies.map(currency => (
+                        <option key={currency} value={currency}>{currency}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>Exchange Rate:</span>
+                    <div className="flex items-center gap-1">
+                      <span>1 {fromCurrency} = {exchangeRate} {toCurrency}</span>
+                      <RefreshCw className="w-3 h-3 cursor-pointer text-blue-500" />
                     </div>
                   </div>
-                  
-                  <div className="space-y-3">
-                    {recentTransactions.map(transaction => (
-                      <div key={transaction.id} className="bg-white/10 rounded-lg p-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="text-sm font-medium">{transaction.recipient}</p>
-                            <p className="text-xs opacity-80">{transaction.date}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-medium">
-                              {formatCurrency(transaction.amount, transaction.fromCurrency)}
-                            </p>
-                            <p className="text-xs opacity-80">
-                              {formatCurrency(transaction.amount * exchangeRate, transaction.toCurrency)}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="mt-2">
-                          <span className="text-xs px-2 py-1 bg-white/20 rounded-full">
-                            {transaction.status}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+
+                  <Button 
+                    className="w-full bg-blue-600 text-white hover:bg-blue-700"
+                    onClick={handleSendMoney}
+                  >
+                    Send Money
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+              )}
+            </div>
+
+            {notification && (
+              <Alert className="mt-4 bg-blue-50 border-blue-200 text-blue-700">
+                <AlertDescription>
+                  {notification}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <History className="w-4 h-4" />
+                  <span className="text-sm">Recent Transactions</span>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                {recentTransactions.map(transaction => (
+                  <div key={transaction.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{transaction.recipient}</p>
+                        <p className="text-xs text-gray-600">{transaction.date}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-900">
+                          {formatCurrency(transaction.amount, transaction.fromCurrency)}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {formatCurrency(transaction.amount * exchangeRate, transaction.toCurrency)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                        {transaction.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

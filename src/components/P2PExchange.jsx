@@ -1,153 +1,247 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeftRight, TrendingUp, Users, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import StatsCard from './StatsCard';
+import { Send, ArrowRight, Globe, Shield, Clock, DollarSign } from 'lucide-react';
 import { Navigation } from './Navigation';
+import { fetchCurrencyRates } from '../utils/currencyApi';
 
 const P2PExchange = () => {
   const navigate = useNavigate();
-  const [currencies, setCurrencies] = useState([
-    {
-      pair: 'BTC/USD',
-      rate: '43,567.89',
-      change: '+2.5%',
-      volume: '1.2B',
-      trending: true
-    },
-    {
-      pair: 'ETH/USD',
-      rate: '2,890.45',
-      change: '+1.8%',
-      volume: '856M',
-      trending: true
-    },
-    {
-      pair: 'EUR/USD',
-      rate: '1.0856',
-      change: '-0.3%',
-      volume: '2.1B',
-      trending: false
-    },
-    {
-      pair: 'GBP/USD',
-      rate: '1.2645',
-      change: '+0.2%',
-      volume: '1.5B',
-      trending: true
-    },
-    {
-      pair: 'JPY/USD',
-      rate: '0.0067',
-      change: '-0.5%',
-      volume: '980M',
-      trending: false
-    },
-    {
-      pair: 'AUD/USD',
-      rate: '0.6534',
-      change: '+0.7%',
-      volume: '750M',
-      trending: true
-    }
-  ]);
+  const [fromCurrency, setFromCurrency] = useState('USD');
+  const [toCurrency, setToCurrency] = useState('EUR');
+  const [amount, setAmount] = useState('');
+  const [rates, setRates] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleWalletClick = () => {
-    navigate('/wallet');
+  const currencies = [
+    { code: 'USD', name: 'US Dollar', symbol: '$' },
+    { code: 'EUR', name: 'Euro', symbol: '€' },
+    { code: 'GBP', name: 'British Pound', symbol: '£' },
+    { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
+    { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+    { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+  ];
+
+  // Fetch exchange rates
+  useEffect(() => {
+    const getRates = async () => {
+      setLoading(true);
+      try {
+        const newRates = await fetchCurrencyRates(fromCurrency);
+        if (newRates) {
+          setRates(newRates);
+          setError(null);
+        } else {
+          setError('Unable to fetch exchange rates');
+        }
+      } catch (err) {
+        setError('Failed to fetch exchange rates');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getRates();
+    // Refresh rates every 5 minutes
+    const interval = setInterval(getRates, 300000);
+    return () => clearInterval(interval);
+  }, [fromCurrency]);
+
+  // Calculate converted amount
+  const calculateConvertedAmount = () => {
+    if (!rates || !amount) return '';
+    const rate = rates[toCurrency];
+    if (!rate) return '';
+    return (parseFloat(amount) * rate).toFixed(2);
   };
 
-  // Simulate real-time updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrencies(prev => prev.map(currency => ({
-        ...currency,
-        rate: (parseFloat(currency.rate.replace(',', '')) * (1 + (Math.random() * 0.002 - 0.001))).toFixed(
-          currency.pair.includes('BTC') ? 2 : 
-          currency.pair.includes('ETH') ? 2 : 4
-        ),
-        change: `${(Math.random() * 5 - 2.5).toFixed(1)}%`,
-        trending: Math.random() > 0.5
-      })));
-    }, 3000);
+  // Handle currency change
+  const handleFromCurrencyChange = async (e) => {
+    const newCurrency = e.target.value;
+    setFromCurrency(newCurrency);
+    // Rates will be updated by the useEffect
+  };
 
-    return () => clearInterval(interval);
-  }, []);
+  const handleSendMoney = () => {
+    navigate('/signup');
+  };
+
+  const benefits = [
+    {
+      icon: <Globe className="w-8 h-8 text-blue-500" />,
+      title: "Global Coverage",
+      description: "Send money to over 200 countries worldwide"
+    },
+    {
+      icon: <Shield className="w-8 h-8 text-blue-500" />,
+      title: "Secure Transfers",
+      description: "Bank-level security for all your transactions"
+    },
+    {
+      icon: <Clock className="w-8 h-8 text-blue-500" />,
+      title: "Fast Delivery",
+      description: "Most transfers arrive within minutes"
+    },
+    {
+      icon: <DollarSign className="w-8 h-8 text-blue-500" />,
+      title: "Great Rates",
+      description: "Competitive exchange rates with low fees"
+    }
+  ];
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Navigation />
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-            Currency Exchange Rates
-          </h1>
-          <button 
-            onClick={handleWalletClick}
-            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg hover:opacity-90 transition-opacity duration-200 flex items-center gap-2"
-          >
-            <span className="material-icons"></span>
-            Wallet
-          </button>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard
-            title="24h Volume"
-            value="$5.4B"
-            icon={TrendingUp}
-            trend="+15.2%"
-            trendUp={true}
-          />
-          <StatsCard
-            title="Active Markets"
-            value="12"
-            icon={ArrowLeftRight}
-          />
-          <StatsCard
-            title="Active Traders"
-            value="2,345"
-            icon={Users}
-            trend="+8.7%"
-            trendUp={true}
-          />
-        </div>
-
-        {/* Currency Rates Table */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">Live Exchange Rates</h2>
-              <RefreshCw className="w-5 h-5 text-gray-500 animate-spin" />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Column - Currency Converter */}
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h1 className="text-4xl font-bold text-gray-900">
+                Send Money Internationally
+              </h1>
+              <p className="text-xl text-gray-600">
+                Fast, secure, and affordable money transfers worldwide
+              </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {currencies.map((currency, index) => (
-                <div 
-                  key={index}
-                  className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-lg font-semibold text-gray-800">{currency.pair}</span>
-                    <span className={`text-sm px-2 py-1 rounded-full ${
-                      currency.trending ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {currency.change}
-                    </span>
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 mb-2">
-                    ${currency.rate}
-                  </div>
-                  <div className="flex justify-between items-center text-sm text-gray-500">
-                    <span>Volume: {currency.volume}</span>
-                    <span className={`flex items-center gap-1 ${
-                      currency.trending ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      <TrendingUp className="w-4 h-4" />
-                      24h
-                    </span>
+
+            {/* Currency Converter Card */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 space-y-6">
+              {error && (
+                <div className="text-red-500 text-sm mb-4">
+                  {error}
+                </div>
+              )}
+              
+              <div className="space-y-4">
+                {/* From Currency */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    You Send
+                  </label>
+                  <div className="flex space-x-4">
+                    <input
+                      type="number"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      className="flex-1 block w-full rounded-lg border-gray-300 shadow-sm 
+                        focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter amount"
+                    />
+                    <select
+                      value={fromCurrency}
+                      onChange={handleFromCurrencyChange}
+                      className="rounded-lg border-gray-300 shadow-sm 
+                        focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      {currencies.map((currency) => (
+                        <option key={currency.code} value={currency.code}>
+                          {currency.code} - {currency.symbol}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
+
+                {/* To Currency */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    They Receive
+                  </label>
+                  <div className="flex space-x-4">
+                    <input
+                      type="number"
+                      value={calculateConvertedAmount()}
+                      disabled
+                      className="flex-1 block w-full rounded-lg border-gray-300 bg-gray-50"
+                      placeholder={loading ? "Loading..." : "Converted amount"}
+                    />
+                    <select
+                      value={toCurrency}
+                      onChange={(e) => setToCurrency(e.target.value)}
+                      className="rounded-lg border-gray-300 shadow-sm 
+                        focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      {currencies.map((currency) => (
+                        <option key={currency.code} value={currency.code}>
+                          {currency.code} - {currency.symbol}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Exchange Rate Display */}
+                {rates && (
+                  <div className="text-sm text-gray-600">
+                    1 {fromCurrency} = {rates[toCurrency]?.toFixed(4)} {toCurrency}
+                  </div>
+                )}
+              </div>
+
+              {/* Send Button */}
+              <button
+                onClick={handleSendMoney}
+                disabled={loading || !amount}
+                className={`w-full py-3 px-4 ${
+                  loading || !amount 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-600 hover:bg-blue-700'
+                } text-white rounded-lg font-medium flex items-center 
+                justify-center space-x-2 transition-colors duration-200`}
+              >
+                <Send className="w-5 h-5" />
+                <span>{loading ? 'Loading...' : 'Send Money Now'}</span>
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Right Column - Benefits */}
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {benefits.map((benefit, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="mb-4">
+                    {benefit.icon}
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {benefit.title}
+                  </h3>
+                  <p className="text-gray-600">
+                    {benefit.description}
+                  </p>
+                </div>
               ))}
+            </div>
+
+            {/* Additional Info */}
+            <div className="bg-blue-50 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                Why Choose Our Service?
+              </h3>
+              <ul className="space-y-2 text-blue-800">
+                <li className="flex items-center space-x-2">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                  <span>No hidden fees or charges</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                  <span>24/7 customer support</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                  <span>Regulated and licensed service</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                  <span>Real-time transfer tracking</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
